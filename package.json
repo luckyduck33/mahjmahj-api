@@ -1,0 +1,9 @@
+{
+  "name": "mahjmahj-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MAHJ MAHJ Content API - Notion-backed JSON endpoints for Events and News",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  }
+}
