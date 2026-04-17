@@ -1,7 +1,7 @@
 const { getNotionClient } = require('./_lib/notion');
 const { handleCors, setCacheHeaders } = require('./_lib/cors');
 
-const NEWS_DB_ID = 'a2aa8295-d267-46a2-8f60-060a649f19e9';
+const NEWS_DB_ID = 'b544b77c-f377-40f7-b389-72dbbc48a5d7';
 
 module.exports = async function handler(req, res) {
   // Handle CORS preflight
