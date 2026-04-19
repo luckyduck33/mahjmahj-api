@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
 
     // Status filter: default to Upcoming + Ongoing unless status=all
     if (status && status.toLowerCase() === 'all') {
-      // No status filter — return everything
+      // No status filter
     } else if (status) {
       filters.push({
         property: 'Status',
@@ -57,10 +57,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // "featured" filter — the Events DB doesn't have an explicit Featured checkbox,
-    // so we treat the presence of ?featured as a no-op unless the schema adds one later.
-    // (Spec mentions it; the DB schema doesn't have it yet.)
-
     const queryParams = {
       database_id: EVENTS_DB_ID,
       sorts: [{ property: 'Date', direction: 'ascending' }],
@@ -85,7 +81,6 @@ module.exports = async function handler(req, res) {
       hasMore = response.has_more;
       startCursor = response.next_cursor;
 
-      // Safety: don't fetch more than 500
       if (allResults.length >= 500) break;
     }
 
@@ -126,6 +121,18 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Events API error:', err);
+
+    // Notion returns validation_error when a filter value doesn't exist in select options
+    if (err.code === 'validation_error') {
+      setCacheHeaders(res);
+      res.status(200).json({
+        events: [],
+        total: 0,
+        lastUpdated: new Date().toISOString(),
+      });
+      return;
+    }
+
     if (err.code === 'notionhq_client_response_error' || err.message?.includes('fetch')) {
       res.status(503).json({ error: 'Notion API unavailable', retry: true });
     } else {
