@@ -45,8 +45,6 @@ module.exports = async function handler(req, res) {
 
     const queryParams = {
       database_id: NEWS_DB_ID,
-      // News DB "Date" is a text field, not a date field, so we sort by createdTime as fallback
-      // and then do client-side sort by the text Date field
       page_size: 100,
     };
 
@@ -88,11 +86,12 @@ module.exports = async function handler(req, res) {
       };
     });
 
-    // Sort by date descending (newest first). Date is a text field like "2026-04-15"
+    // Sort by date descending (newest first).
+    // Date is a text field with mixed formats. Parse to timestamps for reliable sorting.
     news.sort((a, b) => {
-      const dateA = a.date || '';
-      const dateB = b.date || '';
-      return dateB.localeCompare(dateA);
+      const tsA = parseDateText(a.date);
+      const tsB = parseDateText(b.date);
+      return tsB - tsA;
     });
 
     // Apply limit
@@ -107,6 +106,18 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('News API error:', err);
+
+    // Notion returns validation_error when a filter value doesn't exist in select options
+    if (err.code === 'validation_error') {
+      setCacheHeaders(res);
+      res.status(200).json({
+        news: [],
+        total: 0,
+        lastUpdated: new Date().toISOString(),
+      });
+      return;
+    }
+
     if (err.code === 'notionhq_client_response_error' || err.message?.includes('fetch')) {
       res.status(503).json({ error: 'Notion API unavailable', retry: true });
     } else {
@@ -114,6 +125,22 @@ module.exports = async function handler(req, res) {
     }
   }
 };
+
+// --- Date parsing for text date fields ---
+
+function parseDateText(dateStr) {
+  if (!dateStr) return 0;
+  // Try direct Date.parse for ISO and human-readable formats
+  const ts = Date.parse(dateStr);
+  if (!isNaN(ts)) return ts;
+  // Handle month-only like 'April 2026' as 1st of month
+  const monthYear = dateStr.match(/^(\w+)\s+(\d{4})$/);
+  if (monthYear) {
+    const ts2 = Date.parse(monthYear[1] + ' 1, ' + monthYear[2]);
+    if (!isNaN(ts2)) return ts2;
+  }
+  return 0;
+}
 
 // --- Property extractors ---
 
