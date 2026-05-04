@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/expire-events",
+      "schedule": "0 8 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
