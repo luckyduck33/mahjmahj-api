@@ -43,9 +43,28 @@ Response shape:
 }
 ```
 
+### `POST /api/cron/refresh-news` (internal)
+Daily Vercel Cron. Sets `Active = false` on any news item whose `Date` parses to more than 30 days ago. The `Date` field is rich-text in Notion (mixed formats: ISO `2026-04-20`, `April 17, 2026`, `April 2026`, etc.) — parsed using the same `parseDateText` helper as `/api/news` so the cron and the public endpoint never disagree. Items whose date is unparseable (e.g., bare `2025`, date ranges like `May 15–17, 2026`) are listed in the response under `unparseable` and **not** modified, so a future event date is never accidentally deactivated. Idempotent. Auth-gated by `Authorization: Bearer ${CRON_SECRET}`. Schedule: `0 9 * * *` UTC (one hour after the events cron).
+
+Response shape:
+```json
+{
+  "runAt": "2026-05-06T09:00:00.000Z",
+  "cutoffDays": 30,
+  "activeBefore": 52,
+  "kept": 22,
+  "deactivatedCount": 25,
+  "deactivated": [{ "id": "...", "title": "...", "date": "April 6, 2026", "ageDays": 30 }],
+  "unparseableCount": 5,
+  "unparseable": [{ "id": "...", "title": "...", "date": "2025" }],
+  "failureCount": 0,
+  "failures": []
+}
+```
+
 ## Environment Variables
 
-- `NOTION_API_KEY` — Notion integration token (must have read + update access on the Events DB)
+- `NOTION_API_KEY` — Notion integration token (must have read + update access on both the Events and News DBs)
 - `CRON_SECRET` — bearer token Vercel Cron passes when invoking `/api/cron/*` endpoints
 
 ## Deployment
