@@ -54,7 +54,6 @@ Backend API for MAHJ MAHJ. Serves events + news at `https://api.mahjmahj.co`, co
 - City taxonomy: the consumer apps own the city manifest (`mahjmahj-web/src/data/cities.ts`); this API just emits events.
 
 ## DO NOT
-- Do NOT use "Chinese Mahjong" — always "Hong Kong Mahjong" in any event titles, descriptions, or response payloads. (Enforced by a PreToolUse hook.)
 - Do NOT make breaking schema changes without updating both consumers in the same PR cycle.
 - Do NOT commit `.env*` files, scraper credentials, or API keys.
 
