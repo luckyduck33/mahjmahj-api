@@ -29,7 +29,7 @@ Format: `{Assignee} — {Verb} {Object} ({Context})`
 ## Source of Truth
 - Task status: Notion Task Board filtered views
 - Venture facts: ~/Desktop/CLAUDE/Operations/lucky-venture-registry.md
-- Cross-agent workflow: ~/Desktop/CLAUDE/Operations/lucky-shared-protocol.md
+- @/Users/nidhiluckyhanda/Desktop/CLAUDE/Operations/lucky-shared-protocol.md
 - This repo's behavior: this CLAUDE.md
 
 ## Source-of-Truth Gate
