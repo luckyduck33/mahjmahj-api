@@ -81,3 +81,11 @@ node ~/Desktop/CLAUDE/Operations/log-to-command-center.js \
 Add `--requires-review true` if Nidhi needs to look at it. Add `--monetization-related true` for affiliate/revenue/email work. Add `--seo-geo-related true` for indexing/schema/LLM-citation work. Run with `--help` for the full flag list.
 
 The Command Center is the source of truth for what Code, ChatGPT, Cowork, and Opus have shipped. Skip the log only for: typo fixes, README tweaks, work-in-progress commits that you'll roll up into a single later log.
+
+## Commit trailers — Task Board rows (added 2026-07-22)
+
+When a commit's work corresponds to a Notion Task Board row, end the commit message with a trailer:
+
+    Task: <the row id's LAST 12-hex segment>
+
+One `Task:` line per row if a commit covers several. Use the last segment because Notion row ids share time-based prefixes; the last segment is the unique part. `Operations/git-reconcile.mjs` uses these trailers for deterministic commit-to-row matching in the daily check-in; untrailed commits fall back to fuzzy matching and may be flagged as "🕳️ Unreconciled work." Also remember: the session that ships flips the row to Done (hash + deploy URL in Notes) in the same work block. Full protocol: `~/CLAUDE.nosync/Operations/code-session-protocol-2026-07-22-PROPOSAL.md`.
